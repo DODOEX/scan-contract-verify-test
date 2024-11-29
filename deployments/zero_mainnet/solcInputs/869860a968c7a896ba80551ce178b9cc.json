@@ -1,0 +1,33 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/helper/ERC20Helper.sol": {
+      "content": "/*\n\n    Copyright 2021 DODO ZOO.\n    SPDX-License-Identifier: Apache-2.0\n\n*/\n\npragma solidity 0.6.9;\n\ninterface IERC20ForCheck {\n    function decimals() external view returns (uint);\n    function name() external view returns (string memory);\n    function symbol() external view returns (string memory);\n\n    function balanceOf(address account) external view returns (uint256);\n    function allowance(address owner, address spender) external view returns (uint256);\n}\n\ninterface IOldERC20ForCheck {\n    function decimals() external view returns (uint);\n    function name() external view returns (bytes32);\n    function symbol() external view returns (bytes32);\n\n    function balanceOf(address account) external view returns (uint256);\n    function allowance(address owner, address spender) external view returns (uint256);\n}\n\n\ncontract ERC20Helper {\n    function isERC20(address token, address user, address spender) external view returns(bool isOk, string memory symbol, string memory name, uint decimals, uint256 balance, uint256 allownance) {\n        try this.judgeERC20(token, user, spender) returns (string memory _symbol, string memory _name, uint _decimals, uint256 _balance, uint256 _allownance) {\n            symbol = _symbol;\n            name = _name;\n            decimals = _decimals;\n            balance = _balance;\n            allownance = _allownance;\n            isOk = true;\n        } catch {\n            try this.judgeOldERC20(token, user, spender) returns (bytes32 _symbol, bytes32 _name, uint _decimals, uint256 _balance, uint256 _allownance) {\n                symbol = bytes32ToString(_symbol);\n                name = bytes32ToString(_name);\n                decimals = _decimals;\n                balance = _balance;\n                allownance = _allownance;\n                isOk = true;\n            } catch {\n                isOk = false;\n            }   \n        }      \n    }\n\n    function judgeERC20(address token, address user, address spender) external view returns(string memory symbol, string memory name, uint decimals, uint256 balance, uint256 allownance) {\n        name = IERC20ForCheck(token).name();\n        symbol = IERC20ForCheck(token).symbol();\n        decimals = IERC20ForCheck(token).decimals();\n        \n        balance = IERC20ForCheck(token).balanceOf(user);\n        allownance = IERC20ForCheck(token).allowance(user,spender);\n    }\n\n    function judgeOldERC20(address token, address user, address spender) external view returns(bytes32 symbol, bytes32 name, uint decimals, uint256 balance, uint256 allownance) {\n        name = IOldERC20ForCheck(token).name();\n        symbol = IOldERC20ForCheck(token).symbol();\n        decimals = IOldERC20ForCheck(token).decimals();\n        \n        balance = IOldERC20ForCheck(token).balanceOf(user);\n        allownance = IOldERC20ForCheck(token).allowance(user,spender);\n    }\n\n    function bytes32ToString(bytes32 _bytes) public pure returns (string memory _string) {\n        _string = string(abi.encodePacked(_bytes));\n    }\n}"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": true,
+      "mode": "3"
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "forceEVMLA": false,
+    "detectMissingLibraries": false,
+    "enableEraVMExtensions": false,
+    "libraries": {}
+  }
+}
